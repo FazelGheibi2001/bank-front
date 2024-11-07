@@ -1,8 +1,16 @@
-import api from '../../config/axios-interceptor';
+import axios from "axios";
 
-export const loginApi = async (username, password) => {
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const loginApi = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+export const login = async (username, password) => {
     try {
-        return await api.post(
+        return await loginApi.post(
             '/login', {
                 username: username,
                 password: password
@@ -10,5 +18,8 @@ export const loginApi = async (username, password) => {
         );
     } catch (error) {
         console.error('Error during API call:', error);
+        return {
+            status: 401
+        }
     }
 };

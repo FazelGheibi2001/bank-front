@@ -1,7 +1,7 @@
-import {Button, Card, IconButton, TextField} from "@mui/material";
+import {Alert, Button, Card, IconButton, Snackbar, TextField} from "@mui/material";
 import {useState} from "react";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
-import {loginApi} from "./api-login";
+import {login} from "./api-login";
 import {useNavigate} from "react-router-dom";
 
 const Login = () => {
@@ -10,17 +10,35 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const handleLogin = async () => {
-        const response = await loginApi(username, password);
-        if (response) {
-            sessionStorage.setItem("Token", response.Token);
+        if (username === '' || password === '') {
+            setAlertMessage(username === '' ? 'Username is required' : 'Password is required');
+            setAlertOpen(true);
+            return;
+        }
+
+        const response = await login(username, password);
+
+        if (response?.status !== 200) {
+            setAlertMessage('Username or password is incorrect.');
+            setAlertOpen(true);
+        } else if (response?.status === 200) {
+            sessionStorage.setItem("Authorization", response?.headers?.authorization);
             navigate('/panel')
         }
     };
 
+
     const handleClickShowPassword = () => {
         setShowPassword((prev) => !prev);
+    };
+
+    const handleCloseAlert = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setAlertOpen(false);
     };
 
     return (
@@ -66,6 +84,16 @@ const Login = () => {
                     </Button>
                 </div>
             </Card>
+            <Snackbar
+                open={alertOpen}
+                autoHideDuration={3000}
+                onClose={handleCloseAlert}
+                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+            >
+                <Alert onClose={handleCloseAlert} severity="warning" sx={{width: '100%'}}>
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
