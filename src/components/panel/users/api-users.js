@@ -1,9 +1,9 @@
-import api from '../../config/axios-interceptor';
+import api from '../../../config/axios-interceptor';
 
-export const currentUserApi = async () => {
+export const allUsersApi = async () => {
     try {
         return await api.get(
-            '/api/v1/user/current',
+            '/api/v1/user/find-all',
         );
     } catch (error) {
         console.error('Error during API call:', error);
