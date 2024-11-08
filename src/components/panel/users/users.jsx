@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { allUsersApi } from "./api-users";
+import React, {useEffect, useState} from "react";
+import {allUsersApi} from "./api-users";
 import {
     Table,
     TableBody,
@@ -16,7 +16,7 @@ import {
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import { Chip } from '@mui/material';
+import {Chip} from '@mui/material';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -28,7 +28,7 @@ const Users = () => {
 
     const fetchUsers = async () => {
         const response = await allUsersApi();
-        setUsers(response);
+        setUsers(response?.content);
     };
 
     const handleSearchChange = (e) => {
@@ -43,12 +43,34 @@ const Users = () => {
 
     return (
         <div className="h-full w-full">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10}}>
                 <div>
-                    <Button sx={{ backgroundColor: 'white', borderColor: '#042e78', marginTop: 2, marginBottom: 1, marginLeft: 1, marginRight: 1, border: '2px solid' }}>
+                    <Button
+                        sx={{
+                            backgroundColor: 'white',
+                            borderColor: '#042e78',
+                            marginTop: 2,
+                            marginBottom: 1,
+                            marginLeft: 3,
+                            marginRight: 1,
+                            border: '2px solid'
+                        }}
+                        onClick={() => alert("create")}
+                    >
                         Create
                     </Button>
-                    <Button sx={{ backgroundColor: 'white', borderColor: '#042e78', marginTop: 2, marginBottom: 1, marginLeft: .25, marginRight: 1, border: '2px solid' }}>
+                    <Button
+                        sx={{
+                            backgroundColor: 'white',
+                            borderColor: '#042e78',
+                            marginTop: 2,
+                            marginBottom: 1,
+                            marginLeft: .25,
+                            marginRight: 1,
+                            border: '2px solid'
+                        }}
+                        onClick={() => alert("reload")}
+                    >
                         Reload
                     </Button>
                 </div>
@@ -57,9 +79,9 @@ const Users = () => {
                     variant="outlined"
                     value={searchQuery}
                     onChange={handleSearchChange}
-                    sx={{ marginRight: 2 }}
+                    sx={{marginRight: 3, marginTop: 2}}
                     fullWidth
-                    style={{ maxWidth: "300px" }}
+                    style={{maxWidth: "300px"}}
                 />
             </div>
 
@@ -73,14 +95,14 @@ const Users = () => {
             }}>
                 <CardContent>
                     <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="users table">
+                        <Table sx={{minWidth: 650}} aria-label="users table">
                             <TableHead>
-                                <TableRow sx={{ backgroundColor: "#e1e1e1" }}>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>#</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Username</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Full Name</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Role</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}></TableCell>
+                                <TableRow sx={{backgroundColor: "#e1e1e1"}}>
+                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>#</TableCell>
+                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>Username</TableCell>
+                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>Full Name</TableCell>
+                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>Role</TableCell>
+                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -91,35 +113,42 @@ const Users = () => {
                                             backgroundColor: index % 2 === 0 ? "#fafafa" : "#f1f1f1",
                                         }}
                                     >
-                                        <TableCell sx={{ textAlign: 'center' }}>{index + 1}</TableCell>
-                                        <TableCell sx={{ textAlign: 'center' }}>{user.username}</TableCell>
-                                        <TableCell sx={{ textAlign: 'center' }}>{user.fullName}</TableCell>
+                                        <TableCell sx={{textAlign: 'center'}}>{index + 1}</TableCell>
+                                        <TableCell sx={{textAlign: 'center'}}>{user.username}</TableCell>
+                                        <TableCell sx={{textAlign: 'center'}}>{user.fullName}</TableCell>
                                         {user?.role === 'MANAGER' ? (
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                                <Chip label="Manager" color="primary" sx={{ fontWeight: 'bold' }} />
+                                            <TableCell sx={{textAlign: 'center'}}>
+                                                <Chip label="Manager" color="primary" sx={{fontWeight: 'bold'}}/>
                                             </TableCell>
                                         ) : null}
 
                                         {user?.role === 'USER' ? (
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                                <Chip label="User" color="success" sx={{ fontWeight: 'bold' }} />
+                                            <TableCell sx={{textAlign: 'center'}}>
+                                                <Chip label="User" color="success" sx={{fontWeight: 'bold'}}/>
                                             </TableCell>
                                         ) : null}
 
                                         {user?.role === 'ADMIN' ? (
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                                <Chip label="Admin" color="error" sx={{ fontWeight: 'bold' }} />
+                                            <TableCell sx={{textAlign: 'center'}}>
+                                                <Chip label="Admin" color="error" sx={{fontWeight: 'bold'}}/>
                                             </TableCell>
                                         ) : null}
                                         <TableCell sx={{
                                             display: "flex",
                                             justifyContent: "flex-end",
                                             paddingRight: 0,
-                                            width: "150px"
+                                            width: "150px",
+                                            borderBottom: "none"
                                         }}>
-                                            <DeleteOutlineRoundedIcon sx={{ color: "#FF0000", fontSize: "1.5rem", marginLeft: 2.5 }} />
-                                            <BorderColorRoundedIcon sx={{ color: "#FFC107", fontSize: "1.5rem", marginLeft: 2.5 }} />
-                                            <InfoRoundedIcon sx={{ color: "#808080", fontSize: "1.5rem", marginLeft: 2.5 }} />
+                                            <DeleteOutlineRoundedIcon
+                                                sx={{color: "#FF0000", fontSize: "1.5rem", marginLeft: 2.5}}
+                                                onClick={() => alert(user.id)}/>
+                                            <BorderColorRoundedIcon
+                                                sx={{color: "#ffb73e", fontSize: "1.5rem", marginLeft: 2.5}}
+                                                onClick={() => alert(user.id)}/>
+                                            <InfoRoundedIcon
+                                                sx={{color: "#808080", fontSize: "1.5rem", marginLeft: 2.5}}
+                                                onClick={() => alert(user?.id)}/>
                                         </TableCell>
                                     </TableRow>
                                 ))}
