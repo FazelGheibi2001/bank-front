@@ -1,26 +1,17 @@
 import React, {useEffect, useState} from "react";
+import {DataGrid} from '@mui/x-data-grid';
 import {allUsersApi} from "./api-users";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Card,
-    CardContent,
-    Button,
-    TextField
-} from "@mui/material";
+import {Button, TextField, Paper, Chip, IconButton} from "@mui/material";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import {Chip} from '@mui/material';
+import {GridRenderCellParams} from "@mui/x-data-grid";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 5});
+
 
     useEffect(() => {
         fetchUsers();
@@ -40,6 +31,78 @@ const Users = () => {
         user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.role.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const columns = [
+        {
+            sortable: true,
+            field: 'lineNo',
+            headerName: '#',
+            flex: 0,
+            editable: false,
+            renderCell: (params: GridRenderCellParams<DatasetEntryEntity>) =>
+                params.api.getRowIndexRelativeToVisibleRows(params.row.id) + 1,
+            headerClassName: 'super-app-theme--header',
+            headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'username',
+            headerName: 'Username',
+            flex: 1,
+            headerClassName: 'super-app-theme--header',
+            headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'fullName',
+            headerName: 'Full Name',
+            flex: 1,
+            headerClassName: 'super-app-theme--header',
+            headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'role',
+            headerName: 'Role',
+            flex: 1,
+            renderCell: (params) => (
+                <Chip
+                    label={params.value}
+                    color={
+                        params.value === 'MANAGER' ? 'primary' :
+                            params.value === 'USER' ? 'success' :
+                                'error'
+                    }
+                    sx={{fontWeight: 'bold'}}
+                />
+            ),
+            headerClassName: 'super-app-theme--header',
+            headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'actions',
+            headerName: '',
+            flex: 1.5,
+            sortable: false,
+            renderCell: (params) => (
+                <div>
+                    <IconButton onClick={() => alert(params.row.id)}>
+                        <DeleteOutlineRoundedIcon sx={{color: "#FF0000"}}/>
+                    </IconButton>
+                    <IconButton onClick={() => alert(params.row.id)}>
+                        <BorderColorRoundedIcon sx={{color: "#ffb73e"}}/>
+                    </IconButton>
+                    <IconButton onClick={() => alert(params.row.id)}>
+                        <InfoRoundedIcon sx={{color: "#808080"}}/>
+                    </IconButton>
+                </div>
+            ),
+            headerClassName: 'super-app-theme--header',
+            headerAlign: 'center',
+            align: 'center',
+        },
+    ];
 
     return (
         <div className="h-full w-full">
@@ -85,78 +148,20 @@ const Users = () => {
                 />
             </div>
 
-            <Card sx={{
-                borderRadius: 3,
-                boxShadow: 4,
-                padding: 1,
-                minWidth: '90%',
-                minHeight: '85%',
-                marginTop: 2,
-            }}>
-                <CardContent>
-                    <TableContainer component={Paper}>
-                        <Table sx={{minWidth: 650}} aria-label="users table">
-                            <TableHead>
-                                <TableRow sx={{backgroundColor: "#e1e1e1"}}>
-                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>#</TableCell>
-                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>Username</TableCell>
-                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>Full Name</TableCell>
-                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}>Role</TableCell>
-                                    <TableCell sx={{fontWeight: 'bold', textAlign: 'center'}}></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {filteredUsers.map((user, index) => (
-                                    <TableRow
-                                        key={user.id}
-                                        sx={{
-                                            backgroundColor: index % 2 === 0 ? "#fafafa" : "#f1f1f1",
-                                        }}
-                                    >
-                                        <TableCell sx={{textAlign: 'center'}}>{index + 1}</TableCell>
-                                        <TableCell sx={{textAlign: 'center'}}>{user.username}</TableCell>
-                                        <TableCell sx={{textAlign: 'center'}}>{user.fullName}</TableCell>
-                                        {user?.role === 'MANAGER' ? (
-                                            <TableCell sx={{textAlign: 'center'}}>
-                                                <Chip label="Manager" color="primary" sx={{fontWeight: 'bold'}}/>
-                                            </TableCell>
-                                        ) : null}
-
-                                        {user?.role === 'USER' ? (
-                                            <TableCell sx={{textAlign: 'center'}}>
-                                                <Chip label="User" color="success" sx={{fontWeight: 'bold'}}/>
-                                            </TableCell>
-                                        ) : null}
-
-                                        {user?.role === 'ADMIN' ? (
-                                            <TableCell sx={{textAlign: 'center'}}>
-                                                <Chip label="Admin" color="error" sx={{fontWeight: 'bold'}}/>
-                                            </TableCell>
-                                        ) : null}
-                                        <TableCell sx={{
-                                            display: "flex",
-                                            justifyContent: "flex-end",
-                                            paddingRight: 0,
-                                            width: "150px",
-                                            borderBottom: "none"
-                                        }}>
-                                            <DeleteOutlineRoundedIcon
-                                                sx={{color: "#FF0000", fontSize: "1.5rem", marginLeft: 2.5}}
-                                                onClick={() => alert(user.id)}/>
-                                            <BorderColorRoundedIcon
-                                                sx={{color: "#ffb73e", fontSize: "1.5rem", marginLeft: 2.5}}
-                                                onClick={() => alert(user.id)}/>
-                                            <InfoRoundedIcon
-                                                sx={{color: "#808080", fontSize: "1.5rem", marginLeft: 2.5}}
-                                                onClick={() => alert(user?.id)}/>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </CardContent>
-            </Card>
+            <Paper sx={{height: '88%', width: '100%'}}>
+                <DataGrid
+                    rows={users}
+                    columns={columns}
+                    pageSize={paginationModel.pageSize}
+                    page={paginationModel.page}
+                    onPageSizeChange={(newPageSize) => setPaginationModel({...paginationModel, pageSize: newPageSize})}
+                    onPageChange={(newPage) => setPaginationModel({...paginationModel, page: newPage})}
+                    pagination
+                    pageSizeOptions={[5, 10]}
+                    checkboxSelection
+                    sx={{border: 0}}
+                />
+            </Paper>
         </div>
     );
 };
