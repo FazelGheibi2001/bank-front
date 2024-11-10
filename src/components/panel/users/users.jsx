@@ -1,29 +1,31 @@
 import React, {useEffect, useState} from "react";
 import {DataGrid} from '@mui/x-data-grid';
 import {allUsersApi} from "./api-users";
-import {Button, TextField, Paper, Chip, IconButton} from "@mui/material";
+import {Button, Paper, Chip, IconButton, TablePagination} from "@mui/material";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import {GridRenderCellParams} from "@mui/x-data-grid";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
+    const [paginationModel, setPaginationModel] = useState({
+        page: 0,
+        pageSize: 10,
+    });
     const [searchQuery, setSearchQuery] = useState("");
-    const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 5});
-
+    const [totalRows, setTotalRows] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        fetchUsers(paginationModel.page, paginationModel.pageSize);
+    }, [paginationModel.page, paginationModel.pageSize]);
 
-    const fetchUsers = async () => {
-        const response = await allUsersApi();
+    const fetchUsers = async (page, pageSize) => {
+        setLoading(true);
+        const response = await allUsersApi({page: page, pageSize: pageSize});
         setUsers(response?.content);
-    };
-
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
+        setTotalRows(response?.totalElements);
+        setLoading(false);
     };
 
     const filteredUsers = users.filter((user) =>
@@ -33,18 +35,18 @@ const Users = () => {
     );
 
     const columns = [
-        {
-            sortable: true,
-            field: 'lineNo',
-            headerName: '#',
-            flex: 0,
-            editable: false,
-            renderCell: (params: GridRenderCellParams<DatasetEntryEntity>) =>
-                params.api.getRowIndexRelativeToVisibleRows(params.row.id) + 1,
-            headerClassName: 'super-app-theme--header',
-            headerAlign: 'center',
-            align: 'center',
-        },
+        // {
+        //     sortable: true,
+        //     field: 'lineNo',
+        //     headerName: '#',
+        //     flex: 0,
+        //     editable: false,
+        //     renderCell: (params: GridRenderCellParams<DatasetEntryEntity>) =>
+        //         params.api.getRowIndexRelativeToVisibleRows(params.row.id) + 1,
+        //     headerClassName: 'super-app-theme--header',
+        //     headerAlign: 'center',
+        //     align: 'center',
+        // },
         {
             field: 'username',
             headerName: 'Username',
@@ -104,6 +106,8 @@ const Users = () => {
         },
     ];
 
+    const rowsToShow = searchQuery ? filteredUsers : users;
+
     return (
         <div className="h-full w-full">
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10}}>
@@ -137,30 +141,31 @@ const Users = () => {
                         Reload
                     </Button>
                 </div>
-                <TextField
-                    label="Search"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    sx={{marginRight: 3, marginTop: 2}}
-                    fullWidth
-                    style={{maxWidth: "300px"}}
-                />
             </div>
 
             <Paper sx={{height: '88%', width: '100%'}}>
                 <DataGrid
-                    rows={users}
+                    rows={rowsToShow}
                     columns={columns}
-                    pageSize={paginationModel.pageSize}
-                    page={paginationModel.page}
-                    onPageSizeChange={(newPageSize) => setPaginationModel({...paginationModel, pageSize: newPageSize})}
-                    onPageChange={(newPage) => setPaginationModel({...paginationModel, page: newPage})}
+                    loading={loading}
                     pagination
-                    pageSizeOptions={[5, 10]}
                     checkboxSelection
                     sx={{border: 0}}
+                    hideFooter
                 />
+                <div className="bg-white">
+                    <TablePagination
+                        rowsPerPageOptions={[10, 20, 50, 100, {value: -1, label: 'All'}]}
+                        component="div"
+                        count={totalRows}
+                        rowsPerPage={paginationModel.pageSize}
+                        page={paginationModel.page}
+                        onPageChange={(event, newPage) => setPaginationModel((prev) => ({...prev, page: newPage}))}
+                        onRowsPerPageChange={(event) => {
+                            setPaginationModel((prev) => ({...prev, pageSize: +event.target.value, page: 0}));
+                        }}
+                    />
+                </div>
             </Paper>
         </div>
     );
