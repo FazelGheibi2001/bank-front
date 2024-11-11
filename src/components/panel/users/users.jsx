@@ -1,25 +1,20 @@
 import React, {useEffect, useState} from "react";
 import {DataGrid} from '@mui/x-data-grid';
-import {allUsersApi} from "./api-users";
+import {deleteUser, getAllUsers} from "./api-users";
 import {
     Button,
     Paper,
     Chip,
     IconButton,
-    TablePagination,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    TextField,
-    Select,
-    MenuItem,
-    InputLabel,
-    FormControl
+    TablePagination
 } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import CreateUser from "./user-create";
+import AddIcon from '@mui/icons-material/Add';
+import CachedIcon from '@mui/icons-material/Cached';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -31,12 +26,8 @@ const Users = () => {
     const [totalRows, setTotalRows] = useState(0);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
-    const [formValues, setFormValues] = useState({
-        username: '',
-        password: '',
-        fullName: '',
-        role: 'USER'
-    });
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
 
     useEffect(() => {
         fetchUsers(paginationModel.page, paginationModel.pageSize);
@@ -44,11 +35,28 @@ const Users = () => {
 
     const fetchUsers = async (page, pageSize) => {
         setLoading(true);
-        const response = await allUsersApi({page: page, pageSize: pageSize});
+        const response = await getAllUsers({page: page, pageSize: pageSize});
         setUsers(response?.content);
         setTotalRows(response?.totalElements);
         setLoading(false);
     };
+
+    const handleConfirmDelete = async () => {
+        try {
+            await deleteUser(deleteId);
+            setDeleteModalOpen(false);
+            setDeleteId(null);
+            fetchUsers(paginationModel.page, paginationModel.pageSize);
+        } catch (error) {
+            console.error("Failed to delete:", error);
+        }
+    };
+
+    const handleClose = () => {
+        setDeleteModalOpen(false);
+        setDeleteId(null);
+    };
+
 
     const filteredUsers = users.filter((user) =>
         user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -57,7 +65,8 @@ const Users = () => {
     );
 
     const handleDelete = async (id) => {
-        alert(`Are you sure you want to delete ${id}`);
+        setDeleteId(id);
+        setDeleteModalOpen(true);
     }
 
     const handleUpdate = async (id) => {
@@ -68,45 +77,11 @@ const Users = () => {
         alert(`Are you sure you want to show ${id}`);
     }
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        setFormValues((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleCreate = async () => {
-        console.log(formValues);
-        setFormValues({
-            username: '',
-            password: '',
-            fullName: '',
-            role: 'USER'
-        })
-        handleClose();
-    };
-
     const handleReload = async () => {
         await fetchUsers(paginationModel.page, paginationModel.pageSize);
     }
 
     const columns = [
-        // {
-        //     sortable: true,
-        //     field: 'lineNo',
-        //     headerName: '#',
-        //     flex: 0,
-        //     editable: false,
-        //     renderCell: (params: GridRenderCellParams<DatasetEntryEntity>) =>
-        //         params.api.getRowIndexRelativeToVisibleRows(params.row.id) + 1,
-        //     headerClassName: 'super-app-theme--header',
-        //     headerAlign: 'center',
-        //     align: 'center',
-        // },
         {
             field: 'username',
             headerName: 'Username',
@@ -182,9 +157,10 @@ const Users = () => {
                             marginRight: 1,
                             border: '2px solid'
                         }}
-                        onClick={handleOpen}
+                        onClick={() => setOpen(true)}
                     >
-                        Create
+                        Add
+                        <AddIcon className="ml-1"/>
                     </Button>
                     <Button
                         sx={{
@@ -199,6 +175,7 @@ const Users = () => {
                         onClick={() => handleReload()}
                     >
                         Reload
+                        <CachedIcon className="ml-1"/>
                     </Button>
                 </div>
             </div>
@@ -228,59 +205,27 @@ const Users = () => {
                     />
                 </div>
             </Paper>
-            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-                <DialogTitle>Create User</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        margin="normal"
-                        fullWidth
-                        label="Username"
-                        name="username"
-                        value={formValues.username}
-                        onChange={handleChange}
-                        autoComplete="off"
-                    />
-                    <TextField
-                        margin="normal"
-                        fullWidth
-                        label="Password"
-                        type="text"
-                        name="password"
-                        value={formValues.password}
-                        onChange={handleChange}
-                        autoComplete="off"
-                    />
-                    <TextField
-                        margin="normal"
-                        fullWidth
-                        label="Full Name"
-                        name="fullName"
-                        value={formValues.fullName}
-                        onChange={handleChange}
-                    />
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Role</InputLabel>
-                        <Select
-                            name="role"
-                            value={formValues.role}
-                            onChange={handleChange}
-                            label="Role"
-                        >
-                            <MenuItem value="MANAGER">MANAGER</MenuItem>
-                            <MenuItem value="ADMIN">ADMIN</MenuItem>
-                            <MenuItem value="USER">USER</MenuItem>
-                        </Select>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="secondary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleCreate} color="primary" variant="contained">
-                        Create
-                    </Button>
-                </DialogActions>
-            </Dialog>
+
+            <CreateUser open={open} handleClose={() => setOpen(false)}/>
+
+            <div>
+                <Dialog open={deleteModalOpen} onClose={handleClose}>
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete item with ID {deleteId}?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmDelete} color="secondary">
+                            Confirm
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
         </div>
     );
 };
