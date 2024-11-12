@@ -207,7 +207,7 @@ const Panel = () => {
                         <CircularProgress size={60}/>
                     </div>
                 ) : (
-                    <div className="flex h-full">
+                    <div className="flex h-full bg-white">
                         {renderContent()}
                     </div>
                 )}

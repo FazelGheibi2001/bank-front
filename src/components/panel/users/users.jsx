@@ -5,40 +5,55 @@ import {
     Button,
     Paper,
     Chip,
-    IconButton,
-    TablePagination
+    IconButton
 } from "@mui/material";
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import CreateUser from "./user-create";
 import AddIcon from '@mui/icons-material/Add';
 import CachedIcon from '@mui/icons-material/Cached';
+import CustomPagination from "../../../shared/pagination";
+import {Modal, Box, Typography} from '@mui/material';
 
 const Users = () => {
-    const [users, setUsers] = useState([]);
+    const [data, setData] = useState([]);
     const [paginationModel, setPaginationModel] = useState({
-        page: 0,
+        page: 1,
         pageSize: 10,
     });
     const [searchQuery, setSearchQuery] = useState("");
-    const [totalRows, setTotalRows] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
 
     useEffect(() => {
-        fetchUsers(paginationModel.page, paginationModel.pageSize);
+        fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
     }, [paginationModel.page, paginationModel.pageSize]);
 
     const fetchUsers = async (page, pageSize) => {
         setLoading(true);
         const response = await getAllUsers({page: page, pageSize: pageSize});
-        setUsers(response?.content);
-        setTotalRows(response?.totalElements);
+        setData(response?.content);
+        setTotalPages(response?.totalPages);
         setLoading(false);
+    };
+
+    const handlePagination = (event, value) => {
+        setPaginationModel({
+            page: value,
+            pageSize: paginationModel.pageSize
+        })
+    };
+
+    const handlePageSizeChange = (event) => {
+        setPaginationModel({
+            page: 1,
+            pageSize: event.target.value
+        })
     };
 
     const handleConfirmDelete = async () => {
@@ -46,7 +61,7 @@ const Users = () => {
             await deleteUser(deleteId);
             setDeleteModalOpen(false);
             setDeleteId(null);
-            fetchUsers(paginationModel.page, paginationModel.pageSize);
+            await fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
         } catch (error) {
             console.error("Failed to delete:", error);
         }
@@ -58,7 +73,7 @@ const Users = () => {
     };
 
 
-    const filteredUsers = users.filter((user) =>
+    const filteredUsers = data.filter((user) =>
         user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.role.toLowerCase().includes(searchQuery.toLowerCase())
@@ -78,7 +93,7 @@ const Users = () => {
     }
 
     const handleReload = async () => {
-        await fetchUsers(paginationModel.page, paginationModel.pageSize);
+        await fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
     }
 
     const columns = [
@@ -141,7 +156,7 @@ const Users = () => {
         },
     ];
 
-    const rowsToShow = searchQuery ? filteredUsers : users;
+    const rowsToShow = searchQuery ? filteredUsers : data;
 
     return (
         <div className="h-full w-full">
@@ -150,7 +165,7 @@ const Users = () => {
                     <Button
                         sx={{
                             backgroundColor: 'white',
-                            borderColor: '#042e78',
+                            color: '#1976D2',
                             marginTop: 2,
                             marginBottom: 1,
                             marginLeft: 3,
@@ -165,7 +180,7 @@ const Users = () => {
                     <Button
                         sx={{
                             backgroundColor: 'white',
-                            borderColor: '#042e78',
+                            color: '#388E3C',
                             marginTop: 2,
                             marginBottom: 1,
                             marginLeft: .25,
@@ -180,7 +195,7 @@ const Users = () => {
                 </div>
             </div>
 
-            <Paper sx={{height: '88%', width: '100%'}}>
+            <Paper sx={{height: '80%', width: '100%'}}>
                 <DataGrid
                     rows={rowsToShow}
                     columns={columns}
@@ -188,44 +203,85 @@ const Users = () => {
                     pagination
                     checkboxSelection
                     disableSelectionOnClick
-                    sx={{border: 0}}
+                    sx={{borderTop: 1, borderColor: '#dcdcdc', borderBottom: 0}}
                     hideFooter
                 />
                 <div className="bg-white">
-                    <TablePagination
-                        rowsPerPageOptions={[10, 20, 50, 100, {value: -1, label: 'All'}]}
-                        component="div"
-                        count={totalRows}
-                        rowsPerPage={paginationModel.pageSize}
+                    <CustomPagination
                         page={paginationModel.page}
-                        onPageChange={(event, newPage) => setPaginationModel((prev) => ({...prev, page: newPage}))}
-                        onRowsPerPageChange={(event) => {
-                            setPaginationModel((prev) => ({...prev, pageSize: +event.target.value, page: 0}));
-                        }}
+                        pageSize={paginationModel.pageSize}
+                        handlePagination={handlePagination}
+                        handlePageSizeChange={handlePageSizeChange}
+                        totalPages={totalPages}
                     />
                 </div>
             </Paper>
 
             <CreateUser open={open} handleClose={() => setOpen(false)}/>
 
-            <div>
-                <Dialog open={deleteModalOpen} onClose={handleClose}>
-                    <DialogTitle>Confirm Deletion</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Are you sure you want to delete item with ID {deleteId}?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose} color="primary">
+            <Modal
+                open={deleteModalOpen}
+                onClose={handleClose}
+                aria-labelledby="delete-modal-title"
+                aria-describedby="delete-modal-description"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Box
+                    sx={{
+                        width: 500,
+                        backgroundColor: 'background.paper',
+                        borderRadius: '10px',
+                        boxShadow: 24,
+                        p: 3,
+                    }}
+                >
+                    <Typography
+                        id="delete-modal-title"
+                        variant="h6"
+                        sx={{ color: 'text.primary', fontWeight: 'bold', mb: 1 }}
+                    >
+                        Confirm Deletion
+                    </Typography>
+                    <Typography
+                        id="delete-modal-description"
+                        sx={{ color: 'text.secondary', fontSize: '1rem', mb: 2 }}
+                    >
+                        Are you sure you want to delete this item? This action cannot be undone.
+                    </Typography>
+                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                            onClick={handleClose}
+                            sx={{
+                                mr: 1.5,
+                                color: '#BC2727',
+                                backgroundColor: 'transparent',
+                                '&:hover': {
+                                    backgroundColor: '#FCEAEA',
+                                    borderColor: '#BC2727',
+                                },
+                            }}
+                        >
                             Cancel
                         </Button>
-                        <Button onClick={handleConfirmDelete} color="secondary">
+                        <Button
+                            onClick={handleConfirmDelete}
+                            color="primary"
+                            variant="contained"
+                            sx={{
+                                '&:hover': {
+                                    backgroundColor: '#4b9aed',
+                                },
+                            }}
+                        >
                             Confirm
                         </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+                    </Box>
+                </Box>
+            </Modal>
         </div>
     );
 };
