@@ -1,6 +1,6 @@
 import {Pagination, Select, MenuItem} from "@mui/material";
 
-function CustomPagination({page, pageSize, handlePageSizeChange, handlePagination, totalPages}) {
+const CustomPagination = ({page, pageSize, handlePageSizeChange, handlePagination, totalPages}) => {
     return (
         <div className="flex justify-between p-2">
             <Select
@@ -9,7 +9,6 @@ function CustomPagination({page, pageSize, handlePageSizeChange, handlePaginatio
                 onChange={handlePageSizeChange}
                 variant="outlined"
             >
-                <MenuItem value={5}>5</MenuItem>
                 <MenuItem value={10}>10</MenuItem>
                 <MenuItem value={20}>20</MenuItem>
                 <MenuItem value={50}>50</MenuItem>

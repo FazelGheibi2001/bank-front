@@ -30,38 +30,15 @@ import ManageHistoryRoundedIcon from '@mui/icons-material/ManageHistoryRounded';
 import OnlinePredictionRoundedIcon from '@mui/icons-material/OnlinePredictionRounded';
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import Users from "./users/users";
+import {useNavigate} from "react-router-dom";
+import Header from "../../layout/header";
+import Menu from "../../layout/menu";
 
 const Panel = () => {
-    const [currentUser, setCurrentUser] = useState(null);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedPage, setSelectedPage] = useState("Home");
-    const [unreadNotifications, setUnreadNotifications] = useState(5);
-    const PAGES = [
-        "Home",
-        "Accounts",
-        "Users",
-        "Positions",
-        "Profits",
-        "Market",
-        "Open Positions",
-        "Dashboard",
-        "Magic Number",
-        "Back Test",
-        "Signals",
-        "Exit"
-    ];
-
-    useEffect(() => {
-        getCurrentUser();
-    }, []);
-
-    const getCurrentUser = async () => {
-        setLoading(true);
-        const response = await currentUserApi();
-        setCurrentUser(response);
-        setLoading(false);
-    };
 
     const toggleDrawer = (open) => () => {
         setDrawerOpen(open);
@@ -115,91 +92,17 @@ const Panel = () => {
 
     return (
         <div className="flex h-screen">
-            <AppBar position="fixed">
-                <Toolbar className="flex justify-between">
-                    <Box className="flex items-center space-x-4">
-                        <IconButton color="inherit" onClick={() => handleMenuClick("Profile")}>
-                            <AccountCircleIcon/>
-                        </IconButton>
-                        <IconButton color="inherit" onClick={() => handleMenuClick("Notifications")}>
-                            <Badge
-                                badgeContent={unreadNotifications}
-                                color="error"
-                                overlap="circular"
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                            >
-                                <NotificationsIcon/>
-                            </Badge>
-                        </IconButton>
-                        <IconButton color="inherit" onClick={() => handleMenuClick("Settings")}>
-                            <SettingsIcon/>
-                        </IconButton>
-                        <Typography className="text-white !font-sans text-lg" variant="h6">
-                            {currentUser ? currentUser?.fullName : "No user"}
-                        </Typography>
-                    </Box>
-
-                    <Typography className="text-white" variant="h6">
-                        Market Time: 20:12:30
-                    </Typography>
-
-                    <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)}>
-                        <MenuIcon/>
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
-
-            <Drawer
-                anchor="right"
-                open={drawerOpen}
-                onClose={toggleDrawer(false)}
-                sx={{width: 300, "& .MuiDrawer-paper": {width: 300}}}
-            >
-                <Box className="flex justify-center items-center mt-4">
-                    <img src="/logo1.png" alt="logo" className="w-1/2"/>
-                </Box>
-                <Box role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
-                    <List>
-                        {PAGES.map((page) => (
-                            <ListItem
-                                button
-                                key={page}
-                                onClick={() => handleMenuClick(page)}
-                                sx={{
-                                    backgroundColor: selectedPage === page ? "#FCBCA5" : "transparent",
-                                    color: selectedPage === page ? "#787878" : "inherit",
-                                    "&:hover": {
-                                        backgroundColor: "#FCBCA5",
-                                        color: "#787878",
-                                    },
-                                }}
-                            >
-                                <ListItemText className="text-center" primary={page}/>
-                                <ListItemIcon>
-                                    {page === "Accounts" && <PeopleAltRoundedIcon/>}
-                                    {page === "Users" && <AdminPanelSettingsRoundedIcon/>}
-                                    {page === "Home" && <HomeIcon/>}
-                                    {page === "Settings" && <SettingsIcon/>}
-                                    {page === "Profile" && <AccountCircleIcon/>}
-                                    {page === "Notifications" && <NotificationsIcon/>}
-                                    {page === "Positions" && <ReceiptLongRoundedIcon/>}
-                                    {page === "Profits" && <MonetizationOnRoundedIcon/>}
-                                    {page === "Market" && <LocalConvenienceStoreRoundedIcon/>}
-                                    {page === "Open Positions" && <AccountBalanceWalletRoundedIcon/>}
-                                    {page === "Dashboard" && <DonutSmallRoundedIcon/>}
-                                    {page === "Magic Number" && <AutoFixHighRoundedIcon/>}
-                                    {page === "Back Test" && <ManageHistoryRoundedIcon/>}
-                                    {page === "Signals" && <OnlinePredictionRoundedIcon/>}
-                                    {page === "Exit" && <ExitToAppRoundedIcon/>}
-                                </ListItemIcon>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Box>
-            </Drawer>
+            <Header
+                toggleDrawer={toggleDrawer}
+                setLoading={setLoading}
+                handleMenuClick={handleMenuClick}
+            />
+            <Menu
+                toggleDrawer={toggleDrawer}
+                setDrawerOpen={setDrawerOpen}
+                handleMenuClick={handleMenuClick}
+                drawerOpen={drawerOpen}
+            />
 
             <div className="flex-1 flex flex-col pt-16 bg-gray-100">
                 {loading ? (

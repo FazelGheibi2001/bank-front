@@ -6,12 +6,12 @@ import {
     FormControl,
     InputLabel,
     MenuItem,
-    Select,
-    TextField
+    Select
 } from "@mui/material";
 import React, {useState} from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import {createUser} from "./api-users";
+import RequiredTextField from "../../../shared/RequiredTextField";
 
 const CreateUser = ({open, handleClose}) => {
     const [formValues, setFormValues] = useState({
@@ -20,6 +20,7 @@ const CreateUser = ({open, handleClose}) => {
         fullName: '',
         role: 'NONE'
     });
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -29,21 +30,32 @@ const CreateUser = ({open, handleClose}) => {
         }));
     };
 
-    const handleCreate = async () => {
-        await createUser({
-                username: formValues.username,
-                password: formValues.password,
-                fullName: formValues.fullName,
-                role: formValues.role
-            }
-        );
+    const resetFormValues = () => {
         setFormValues({
             username: '',
             password: '',
             fullName: '',
             role: 'NONE'
         })
-        handleClose();
+    }
+
+    const handleCreate = async () => {
+        setIsSubmitted(true);
+        if (formValues.username.trim() !== '' &&
+            formValues.password.trim() !== '' &&
+            formValues.fullName.trim() !== '' &&
+            formValues.role !== 'NONE') {
+            await createUser({
+                    username: formValues.username,
+                    password: formValues.password,
+                    fullName: formValues.fullName,
+                    role: formValues.role
+                }
+            );
+            resetFormValues()
+            setIsSubmitted(false);
+            handleClose();
+        }
     };
 
     return (
@@ -52,13 +64,17 @@ const CreateUser = ({open, handleClose}) => {
                 <DialogTitle>
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                         <span>Create User</span>
-                        <Button onClick={handleClose} className="!text-red-600" style={{minWidth: 0, padding: '0 8px'}}>
+                        <Button onClick={() => {
+                            handleClose();
+                            resetFormValues();
+                        }} className="!text-red-600" style={{minWidth: 0, padding: '0 8px'}}>
                             <CloseIcon/>
                         </Button>
                     </div>
                 </DialogTitle>
                 <DialogContent>
-                    <TextField
+                    <RequiredTextField
+                        errorMessage="Please enter username"
                         margin="normal"
                         fullWidth
                         label="Username"
@@ -66,9 +82,10 @@ const CreateUser = ({open, handleClose}) => {
                         value={formValues.username}
                         onChange={handleChange}
                         autoComplete="off"
-                        required={true}
+                        isSubmitted={isSubmitted}
                     />
-                    <TextField
+                    <RequiredTextField
+                        errorMessage="Please enter password"
                         margin="normal"
                         fullWidth
                         label="Password"
@@ -77,9 +94,10 @@ const CreateUser = ({open, handleClose}) => {
                         value={formValues.password}
                         onChange={handleChange}
                         autoComplete="off"
-                        required={true}
+                        isSubmitted={isSubmitted}
                     />
-                    <TextField
+                    <RequiredTextField
+                        errorMessage="Please enter full name"
                         margin="normal"
                         fullWidth
                         label="Full Name"
@@ -87,7 +105,7 @@ const CreateUser = ({open, handleClose}) => {
                         value={formValues.fullName}
                         onChange={handleChange}
                         autoComplete="off"
-                        required={true}
+                        isSubmitted={isSubmitted}
                     />
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Role</InputLabel>
@@ -107,7 +125,12 @@ const CreateUser = ({open, handleClose}) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} className="!text-red-700">
+                    <Button
+                        onClick={() => {
+                            handleClose();
+                            resetFormValues();
+                        }}
+                        className="!text-red-700">
                         Cancel
                     </Button>
                     <Button onClick={handleCreate} color="primary" variant="contained">

@@ -7,7 +7,6 @@ import {
     Chip,
     IconButton
 } from "@mui/material";
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
@@ -15,7 +14,7 @@ import CreateUser from "./user-create";
 import AddIcon from '@mui/icons-material/Add';
 import CachedIcon from '@mui/icons-material/Cached';
 import CustomPagination from "../../../shared/pagination";
-import {Modal, Box, Typography} from '@mui/material';
+import DeleteModal from "../../../shared/delete-modal";
 
 const Users = () => {
     const [data, setData] = useState([]);
@@ -26,7 +25,7 @@ const Users = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
+    const [createPopupOpen, setCreatePopupOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
 
@@ -67,7 +66,7 @@ const Users = () => {
         }
     };
 
-    const handleClose = () => {
+    const handleDeleteModalClose = () => {
         setDeleteModalOpen(false);
         setDeleteId(null);
     };
@@ -172,7 +171,7 @@ const Users = () => {
                             marginRight: 1,
                             border: '2px solid'
                         }}
-                        onClick={() => setOpen(true)}
+                        onClick={() => setCreatePopupOpen(true)}
                     >
                         Add
                         <AddIcon className="ml-1"/>
@@ -217,71 +216,16 @@ const Users = () => {
                 </div>
             </Paper>
 
-            <CreateUser open={open} handleClose={() => setOpen(false)}/>
+            <CreateUser
+                open={createPopupOpen}
+                handleClose={() => setCreatePopupOpen(false)}
+            />
 
-            <Modal
+            <DeleteModal
                 open={deleteModalOpen}
-                onClose={handleClose}
-                aria-labelledby="delete-modal-title"
-                aria-describedby="delete-modal-description"
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Box
-                    sx={{
-                        width: 500,
-                        backgroundColor: 'background.paper',
-                        borderRadius: '10px',
-                        boxShadow: 24,
-                        p: 3,
-                    }}
-                >
-                    <Typography
-                        id="delete-modal-title"
-                        variant="h6"
-                        sx={{ color: 'text.primary', fontWeight: 'bold', mb: 1 }}
-                    >
-                        Confirm Deletion
-                    </Typography>
-                    <Typography
-                        id="delete-modal-description"
-                        sx={{ color: 'text.secondary', fontSize: '1rem', mb: 2 }}
-                    >
-                        Are you sure you want to delete this item? This action cannot be undone.
-                    </Typography>
-                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button
-                            onClick={handleClose}
-                            sx={{
-                                mr: 1.5,
-                                color: '#BC2727',
-                                backgroundColor: 'transparent',
-                                '&:hover': {
-                                    backgroundColor: '#FCEAEA',
-                                    borderColor: '#BC2727',
-                                },
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleConfirmDelete}
-                            color="primary"
-                            variant="contained"
-                            sx={{
-                                '&:hover': {
-                                    backgroundColor: '#4b9aed',
-                                },
-                            }}
-                        >
-                            Confirm
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
+                handleClose={handleDeleteModalClose}
+                handleConfirmDelete={handleConfirmDelete}
+            />
         </div>
     );
 };
