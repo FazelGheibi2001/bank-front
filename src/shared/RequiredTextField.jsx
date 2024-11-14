@@ -18,7 +18,7 @@ const RequiredTextField = ({ errorMessage, onChange, isSubmitted, ...rest }) => 
 
     useEffect(() => {
         if (isSubmitted) {
-            setError(rest.value.trim() === '');
+            setError(rest.value?.trim() === '');
         }
     }, [isSubmitted, rest.value]);
 
@@ -31,6 +31,9 @@ const RequiredTextField = ({ errorMessage, onChange, isSubmitted, ...rest }) => 
             sx={{
                 "& .MuiInputLabel-asterisk": {
                     color: "red",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                    WebkitTextFillColor: "#191919",
                 },
             }}
             onChange={handleChange}

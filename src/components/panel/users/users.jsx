@@ -16,6 +16,8 @@ import CustomPagination from "../../../shared/pagination";
 import DeleteModal from "../../../shared/delete-modal";
 import UserCreate from "./user-create";
 import {useSnackbar} from "notistack";
+import UserInfo from "./user-info";
+import UserUpdate from "./user-update";
 
 const Users = () => {
     const [data, setData] = useState([]);
@@ -27,13 +29,17 @@ const Users = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
     const [createPopupOpen, setCreatePopupOpen] = useState(false);
+    const [infoPopupOpen, setInfoPopupOpen] = useState(false);
+    const [updatePopupOpen, setUpdatePopupOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const {enqueueSnackbar} = useSnackbar();
+    const [currentDataIdInfo, setCurrentDataIdInfo] = useState(null);
+    const [currentDataIdUpdate, setCurrentDataIdUpdate] = useState(null);
 
     useEffect(() => {
         fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
-    }, [paginationModel.page, paginationModel.pageSize, createPopupOpen, deleteModalOpen]);
+    }, [paginationModel.page, paginationModel.pageSize, createPopupOpen, deleteModalOpen, updatePopupOpen]);
 
     const fetchUsers = async (page, pageSize) => {
         setLoading(true);
@@ -121,11 +127,13 @@ const Users = () => {
     }
 
     const handleUpdate = async (id) => {
-        alert(`Are you sure you want to update ${id}`);
+        setUpdatePopupOpen(true);
+        setCurrentDataIdUpdate(id);
     }
 
-    const handleShow = async (id) => {
-        alert(`Are you sure you want to show ${id}`);
+    const handleInfo = async (id) => {
+        setInfoPopupOpen(true);
+        setCurrentDataIdInfo(id);
     }
 
     const handleReload = async () => {
@@ -181,7 +189,7 @@ const Users = () => {
                     <IconButton onClick={() => handleUpdate(params.row.id)}>
                         <BorderColorRoundedIcon sx={{color: "#ffb73e"}}/>
                     </IconButton>
-                    <IconButton onClick={() => handleShow(params.row.id)}>
+                    <IconButton onClick={() => handleInfo(params.row.id)}>
                         <InfoRoundedIcon sx={{color: "#808080"}}/>
                     </IconButton>
                 </div>
@@ -237,7 +245,7 @@ const Users = () => {
                     columns={columns}
                     loading={loading}
                     pagination
-                    checkboxSelection
+                    // checkboxSelection
                     disableSelectionOnClick
                     sx={{borderTop: 1, borderColor: '#dcdcdc', borderBottom: 0}}
                     hideFooter
@@ -264,6 +272,20 @@ const Users = () => {
                 handleClose={handleDeleteModalClose}
                 handleConfirmDelete={handleConfirmDelete}
             />
+
+            <UserInfo
+                open={infoPopupOpen}
+                handleClose={() => setInfoPopupOpen(false)}
+                currentDataId={currentDataIdInfo}
+            />
+
+            <UserUpdate
+                open={updatePopupOpen}
+                handleClose={() => setUpdatePopupOpen(false)}
+                showMessage={showMessage}
+                currentDataId={currentDataIdUpdate}
+            />
+
         </div>
     );
 };

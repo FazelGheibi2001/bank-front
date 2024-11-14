@@ -10,6 +10,16 @@ export const getAllUsers = async ({page, pageSize}) => {
     }
 };
 
+export const getUserById = async ({id}) => {
+    try {
+        return await api.get(
+            `/api/v1/user/find/${id}`,
+        );
+    } catch (error) {
+        console.error('Error during API call:', error);
+    }
+};
+
 export const createUser = async ({username, password, role, fullName}) => {
     try {
         return await api.post(
@@ -34,4 +44,17 @@ export const deleteUser = async (id) => {
     } catch (error) {
         console.error('Error during API call:', error);
     }
+};
+
+export const updateUser = async ({id, username, password, role, fullName}) => {
+    return await api.put(
+        `/api/v1/user/update`,
+        {
+            id: id,
+            username: username,
+            password: password,
+            role: role,
+            fullName: fullName
+        }
+    );
 };

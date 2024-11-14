@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {getUserById} from "./api-users";
+import {getUserById, updateUser} from "./api-users";
 import {
     Button,
     Dialog,
@@ -14,22 +14,15 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import RequiredTextField from "../../../shared/RequiredTextField";
 
-const UserInfo = ({open, handleClose, currentDataId}) => {
+const UserUpdate = ({open, handleClose, currentDataId, showMessage}) => {
     const [formValues, setFormValues] = useState({
+        id: '',
         username: '',
         password: '',
         fullName: '',
         role: 'NONE'
     });
-
-    const fetchUser = async (id) => {
-        try {
-            const response = await getUserById({id});
-            setFormValues(response);
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        }
-    };
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     useEffect(() => {
         if (currentDataId) {
@@ -37,13 +30,60 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
         }
     }, [currentDataId]);
 
+    const fetchUser = async (id) => {
+        const response = await getUserById({id});
+        setFormValues(response);
+    };
+
+    const handleChange = (e) => {
+        const {name, value} = e.target;
+        setFormValues((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const resetFormValues = async () => {
+        await fetchUser(currentDataId);
+        setIsSubmitted(false);
+    }
+
+    const handleUpdate = async () => {
+        setIsSubmitted(true);
+
+        if (formValues.username !== '' &&
+            formValues.password !== '' &&
+            formValues.fullName !== '' &&
+            formValues.role !== 'NONE') {
+            try {
+                await updateUser({
+                        id: currentDataId,
+                        username: formValues.username,
+                        password: formValues.password,
+                        fullName: formValues.fullName,
+                        role: formValues.role
+                    }
+                );
+                showMessage("Item updated successfully!", 'success');
+                resetFormValues();
+            } catch (error) {
+                showMessage("Update Failed!", 'error');
+            }
+            setIsSubmitted(false);
+            handleClose();
+        }
+    };
+
     return (
         <div>
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <span>Show User</span>
-                        <Button onClick={() => handleClose()} className="!text-red-600" style={{minWidth: 0, padding: '0 8px'}}>
+                        <span>Update User</span>
+                        <Button onClick={() => {
+                            handleClose();
+                            resetFormValues();
+                        }} className="!text-red-600" style={{minWidth: 0, padding: '0 8px'}}>
                             <CloseIcon/>
                         </Button>
                     </div>
@@ -56,9 +96,9 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
                         label="Username"
                         name="username"
                         value={formValues?.username}
+                        onChange={handleChange}
                         autoComplete="off"
-                        disabled={true}
-                        isSubmitted={false}
+                        isSubmitted={isSubmitted}
                     />
                     <RequiredTextField
                         errorMessage="Please enter password"
@@ -68,9 +108,9 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
                         type="text"
                         name="password"
                         value={formValues?.password}
+                        onChange={handleChange}
                         autoComplete="off"
-                        disabled={true}
-                        isSubmitted={false}
+                        isSubmitted={isSubmitted}
                     />
                     <RequiredTextField
                         errorMessage="Please enter full name"
@@ -79,15 +119,16 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
                         label="Full Name"
                         name="fullName"
                         value={formValues?.fullName}
+                        onChange={handleChange}
                         autoComplete="off"
-                        disabled={true}
-                        isSubmitted={false}
+                        isSubmitted={isSubmitted}
                     />
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Role</InputLabel>
                         <Select
                             name="role"
                             value={formValues?.role}
+                            onChange={handleChange}
                             label="Role"
                             variant="outlined"
                             required={true}
@@ -101,9 +142,15 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        onClick={() => handleClose()}
+                        onClick={() => {
+                            handleClose();
+                            resetFormValues();
+                        }}
                         className="!text-red-700">
                         Cancel
+                    </Button>
+                    <Button onClick={handleUpdate} color="primary" variant="contained">
+                        Update
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -111,4 +158,4 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
     )
 }
 
-export default UserInfo;
+export default UserUpdate;
