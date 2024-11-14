@@ -13,7 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {createUser} from "./api-users";
 import RequiredTextField from "../../../shared/RequiredTextField";
 
-const UserCreate = ({open, handleClose}) => {
+const UserCreate = ({open, handleClose, showMessage}) => {
     const [formValues, setFormValues] = useState({
         username: '',
         password: '',
@@ -54,6 +54,7 @@ const UserCreate = ({open, handleClose}) => {
                     role: formValues.role
                 }
             );
+            showMessage("Item created successfully!", 'success');
             resetFormValues();
             setIsSubmitted(false);
             handleClose();

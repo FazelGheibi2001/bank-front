@@ -1,9 +1,19 @@
 import './App.css';
 import ModuleRoutes from "./shared/routes";
+import {SnackbarProvider} from "notistack";
 
 const App = () => {
     return (
-        <ModuleRoutes/>
+        <SnackbarProvider
+            maxSnack={3}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+            }}
+        >
+            <ModuleRoutes/>
+        </SnackbarProvider>
+
     );
 }
 

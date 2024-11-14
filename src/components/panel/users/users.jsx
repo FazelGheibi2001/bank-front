@@ -15,6 +15,7 @@ import CachedIcon from '@mui/icons-material/Cached';
 import CustomPagination from "../../../shared/pagination";
 import DeleteModal from "../../../shared/delete-modal";
 import UserCreate from "./user-create";
+import {useSnackbar} from "notistack";
 
 const Users = () => {
     const [data, setData] = useState([]);
@@ -28,10 +29,11 @@ const Users = () => {
     const [createPopupOpen, setCreatePopupOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
         fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
-    }, [paginationModel.page, paginationModel.pageSize]);
+    }, [paginationModel.page, paginationModel.pageSize, createPopupOpen, deleteModalOpen]);
 
     const fetchUsers = async (page, pageSize) => {
         setLoading(true);
@@ -55,12 +57,47 @@ const Users = () => {
         })
     };
 
+    const showMessage = (message, variant) => {
+        let color;
+        switch (variant) {
+            case 'success':
+                color = '#4caf50';
+                break;
+            case 'warning':
+                color = '#ff9800';
+                break;
+            case 'error':
+                color = '#f44336';
+                break;
+            default:
+                color = '#000';
+                break;
+        }
+
+        enqueueSnackbar(
+            <div style={{display: 'flex', alignItems: 'center'}}>
+                {message}
+            </div>,
+            {
+                variant: variant,
+                autoHideDuration: 3000,
+                style: {
+                    backgroundColor: 'white',
+                    color: color,
+                    borderRadius: '10px',
+                    padding: '8px 16px',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                },
+            }
+        );
+    }
+
     const handleConfirmDelete = async () => {
         try {
             await deleteUser(deleteId);
+            showMessage("Item deleted successfully!", 'warning');
             setDeleteModalOpen(false);
             setDeleteId(null);
-            await fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
         } catch (error) {
             console.error("Failed to delete:", error);
         }
@@ -219,6 +256,7 @@ const Users = () => {
             <UserCreate
                 open={createPopupOpen}
                 handleClose={() => setCreatePopupOpen(false)}
+                showMessage={showMessage}
             />
 
             <DeleteModal

@@ -28,9 +28,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => {
         console.log('Response:', response);
-        if (response.config.method.toUpperCase() === 'POST' && response.status === 201) {
-
-        }
         return response.data;
     },
     (error) => {
