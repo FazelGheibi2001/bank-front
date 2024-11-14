@@ -20,21 +20,15 @@ const ModuleRoutes = () => {
                 }
             />
             <Route
-                path="/panel"
+                path="/panel/*"
                 element={
                     <ProtectedRoute>
                         <Panel/>
                     </ProtectedRoute>
                 }
-            />
-            <Route
-                path="/panel/users"
-                element={
-                    <ProtectedRoute>
-                        <Users/>
-                    </ProtectedRoute>
-                }
-            />
+            >
+                <Route path="users" element={<Users/>}/>
+            </Route>
         </Routes>
     )
 }

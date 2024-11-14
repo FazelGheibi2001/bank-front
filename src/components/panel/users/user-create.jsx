@@ -13,7 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {createUser} from "./api-users";
 import RequiredTextField from "../../../shared/RequiredTextField";
 
-const CreateUser = ({open, handleClose}) => {
+const UserCreate = ({open, handleClose}) => {
     const [formValues, setFormValues] = useState({
         username: '',
         password: '',
@@ -37,10 +37,12 @@ const CreateUser = ({open, handleClose}) => {
             fullName: '',
             role: 'NONE'
         })
+        setIsSubmitted(false);
     }
 
     const handleCreate = async () => {
         setIsSubmitted(true);
+
         if (formValues.username.trim() !== '' &&
             formValues.password.trim() !== '' &&
             formValues.fullName.trim() !== '' &&
@@ -52,7 +54,7 @@ const CreateUser = ({open, handleClose}) => {
                     role: formValues.role
                 }
             );
-            resetFormValues()
+            resetFormValues();
             setIsSubmitted(false);
             handleClose();
         }
@@ -142,4 +144,4 @@ const CreateUser = ({open, handleClose}) => {
     )
 }
 
-export default CreateUser;
+export default UserCreate;

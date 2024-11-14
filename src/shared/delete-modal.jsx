@@ -46,7 +46,7 @@ const DeleteModal = ({open, handleClose, handleConfirmDelete}) => {
                         color: '#842029',
                         backgroundColor: '#F8D7DA',
                         padding: '13px 26px',
-                        borderRadius: '4px',
+                        borderRadius: '12px',
                         textAlign: 'left',
                         fontSize: '1rem',
                         fontWeight: '500',

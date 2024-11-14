@@ -11,16 +11,13 @@ const RequiredTextField = ({ errorMessage, onChange, isSubmitted, ...rest }) => 
             setError(true);
         }
 
-        // Call parent onChange to update form state
         if (onChange) {
             onChange(e);
         }
     };
 
-    // Trigger validation when form is submitted
     useEffect(() => {
         if (isSubmitted) {
-            // Validate the field again on form submit
             setError(rest.value.trim() === '');
         }
     }, [isSubmitted, rest.value]);

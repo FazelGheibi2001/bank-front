@@ -27,7 +27,7 @@ const Login = () => {
             setAlertOpen(true);
         } else if (response?.status === 200) {
             sessionStorage.setItem("Authorization", response?.headers?.authorization);
-            navigate('/panel')
+            navigate('/panel/home')
         }
     };
 

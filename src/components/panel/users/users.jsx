@@ -10,11 +10,11 @@ import {
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import CreateUser from "./user-create";
 import AddIcon from '@mui/icons-material/Add';
 import CachedIcon from '@mui/icons-material/Cached';
 import CustomPagination from "../../../shared/pagination";
 import DeleteModal from "../../../shared/delete-modal";
+import UserCreate from "./user-create";
 
 const Users = () => {
     const [data, setData] = useState([]);
@@ -216,7 +216,7 @@ const Users = () => {
                 </div>
             </Paper>
 
-            <CreateUser
+            <UserCreate
                 open={createPopupOpen}
                 handleClose={() => setCreatePopupOpen(false)}
             />

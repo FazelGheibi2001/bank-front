@@ -1,13 +1,14 @@
-import { Navigate } from "react-router-dom";
+import {Navigate} from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
-    const token = sessionStorage.getItem("Authorization");
+const ProtectedRoute = ({children}) => {
+    const isAuthenticated = Boolean(sessionStorage.getItem('Authorization'));
 
-    if (!token) {
-        return <Navigate to="/login" replace />;
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace={false}/>;
     }
 
     return children;
 };
+
 
 export default ProtectedRoute;
