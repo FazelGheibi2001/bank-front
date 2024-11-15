@@ -31,8 +31,12 @@ const UserUpdate = ({open, handleClose, currentDataId, showMessage}) => {
     }, [currentDataId]);
 
     const fetchUser = async (id) => {
-        const response = await getUserById({id});
-        setFormValues(response);
+        try {
+            const response = await getUserById({id});
+            setFormValues(response);
+        } catch (error) {
+            showMessage("Error Fetching Data!", 'error');
+        }
     };
 
     const handleChange = (e) => {

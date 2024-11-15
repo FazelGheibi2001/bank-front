@@ -5,7 +5,7 @@ import {
     Button,
     Paper,
     Chip,
-    IconButton
+    IconButton, Dialog, DialogTitle, DialogContent, FormControl, InputLabel, Select, MenuItem, DialogActions, TextField
 } from "@mui/material";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
@@ -18,6 +18,8 @@ import UserCreate from "./user-create";
 import {useSnackbar} from "notistack";
 import UserInfo from "./user-info";
 import UserUpdate from "./user-update";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import CloseIcon from "@mui/icons-material/Close";
 
 const Users = () => {
     const [data, setData] = useState([]);
@@ -32,20 +34,39 @@ const Users = () => {
     const [infoPopupOpen, setInfoPopupOpen] = useState(false);
     const [updatePopupOpen, setUpdatePopupOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [filterPopupOpen, setFilterPopupOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const {enqueueSnackbar} = useSnackbar();
     const [currentDataIdInfo, setCurrentDataIdInfo] = useState(null);
     const [currentDataIdUpdate, setCurrentDataIdUpdate] = useState(null);
+    const [searchFormFilter, setSearchFormFilter] = useState({
+        username: null,
+        password: null,
+        fullName: null,
+        role: null
+    });
 
     useEffect(() => {
-        fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
+        fetchUsers(paginationModel.page, paginationModel.pageSize, searchFormFilter);
     }, [paginationModel.page, paginationModel.pageSize, createPopupOpen, deleteModalOpen, updatePopupOpen]);
 
-    const fetchUsers = async (page, pageSize) => {
+    const fetchUsers = async (page, pageSize, filters) => {
         setLoading(true);
-        const response = await getAllUsers({page: page, pageSize: pageSize});
-        setData(response?.content);
-        setTotalPages(response?.totalPages);
+        try {
+            const response = await getAllUsers(
+                {
+                    page: page,
+                    pageSize: pageSize,
+                    filter: Object.fromEntries(
+                        Object.entries(filters).filter(([key, value]) => value !== null)
+                    )
+                }
+            );
+            setData(response?.content);
+            setTotalPages(response?.totalPages);
+        } catch (error) {
+            showMessage("Error Fetching Data!", 'error');
+        }
         setLoading(false);
     };
 
@@ -105,7 +126,7 @@ const Users = () => {
             setDeleteModalOpen(false);
             setDeleteId(null);
         } catch (error) {
-            console.error("Failed to delete:", error);
+            showMessage("Delete Failed!", 'error');
         }
     };
 
@@ -137,7 +158,52 @@ const Users = () => {
     }
 
     const handleReload = async () => {
-        await fetchUsers(paginationModel.page - 1, paginationModel.pageSize);
+        await fetchUsers(paginationModel.page, paginationModel.pageSize, searchFormFilter);
+    }
+
+    const handleFilter = async () => {
+        setFilterPopupOpen(true);
+    }
+
+    const handleFilterClose = async () => {
+        setFilterPopupOpen(false);
+    }
+
+    const resetFilterFormValues = async () => {
+        setFilterPopupOpen(false);
+        await setSearchFormFilter({
+            username: null,
+            password: null,
+            fullName: null,
+            role: null
+        })
+        setPaginationModel({
+            page: 1,
+            pageSize: paginationModel.pageSize
+        })
+        await fetchUsers(1, paginationModel.pageSize, {
+            username: null,
+            password: null,
+            fullName: null,
+            role: null
+        });
+    }
+
+    const handleFilterChange = (e) => {
+        const {name, value} = e.target;
+        setSearchFormFilter((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const submitFilter = async () => {
+        setPaginationModel({
+            page: 1,
+            pageSize: paginationModel.pageSize
+        })
+        await fetchUsers(1, paginationModel.pageSize, searchFormFilter);
+        setFilterPopupOpen(false);
     }
 
     const columns = [
@@ -164,12 +230,16 @@ const Users = () => {
             renderCell: (params) => (
                 <Chip
                     label={params.value}
-                    color={
-                        params.value === 'MANAGER' ? 'primary' :
-                            params.value === 'USER' ? 'success' :
-                                'error'
-                    }
-                    sx={{fontWeight: 'bold'}}
+                    sx={{
+                        backgroundColor:
+                            params.value === 'MANAGER' ? '#edae49' :
+                                params.value === 'USER' ? '#d1495b' :
+                                    '#00798c',
+                        fontWeight: 'bold',
+                        color: 'white',
+                        borderRadius: '10px'
+                    }}
+                    variant="filled"
                 />
             ),
             headerClassName: 'super-app-theme--header',
@@ -209,7 +279,7 @@ const Users = () => {
                     <Button
                         sx={{
                             backgroundColor: 'white',
-                            color: '#1976D2',
+                            color: '#388E3C',
                             marginTop: 2,
                             marginBottom: 1,
                             marginLeft: 3,
@@ -224,7 +294,7 @@ const Users = () => {
                     <Button
                         sx={{
                             backgroundColor: 'white',
-                            color: '#388E3C',
+                            color: '#1976D2',
                             marginTop: 2,
                             marginBottom: 1,
                             marginLeft: .25,
@@ -235,6 +305,21 @@ const Users = () => {
                     >
                         Reload
                         <CachedIcon className="ml-1"/>
+                    </Button>
+                    <Button
+                        sx={{
+                            backgroundColor: 'white',
+                            color: '#1976D2',
+                            marginTop: 2,
+                            marginBottom: 1,
+                            marginLeft: .25,
+                            marginRight: 1,
+                            border: '2px solid'
+                        }}
+                        onClick={() => handleFilter()}
+                    >
+                        Filter
+                        <FilterAltIcon className="ml-1"/>
                     </Button>
                 </div>
             </div>
@@ -277,6 +362,7 @@ const Users = () => {
                 open={infoPopupOpen}
                 handleClose={() => setInfoPopupOpen(false)}
                 currentDataId={currentDataIdInfo}
+                showMessage={showMessage}
             />
 
             <UserUpdate
@@ -285,6 +371,66 @@ const Users = () => {
                 showMessage={showMessage}
                 currentDataId={currentDataIdUpdate}
             />
+
+            <div>
+                <Dialog open={filterPopupOpen} onClose={handleFilterClose} maxWidth="sm" fullWidth>
+                    <DialogTitle>
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                            <span>Filter User</span>
+                            <Button onClick={() => handleFilterClose()} className="!text-red-600"
+                                    style={{minWidth: 0, padding: '0 8px'}}>
+                                <CloseIcon/>
+                            </Button>
+                        </div>
+                    </DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            margin="normal"
+                            fullWidth
+                            label="Username"
+                            name="username"
+                            value={searchFormFilter?.username}
+                            onChange={handleFilterChange}
+                            autoComplete="off"
+                        />
+                        <TextField
+                            errorMessage="Please enter full name"
+                            margin="normal"
+                            fullWidth
+                            label="Full Name"
+                            name="fullName"
+                            value={searchFormFilter?.fullName}
+                            onChange={handleFilterChange}
+                            autoComplete="off"
+                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Role</InputLabel>
+                            <Select
+                                name="role"
+                                value={searchFormFilter?.role}
+                                onChange={handleFilterChange}
+                                label="Role"
+                                variant="outlined"
+                            >
+                                <MenuItem value="NONE">None</MenuItem>
+                                <MenuItem value="MANAGER">Manager</MenuItem>
+                                <MenuItem value="ADMIN">Admin</MenuItem>
+                                <MenuItem value="USER">User</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => resetFilterFormValues()}
+                            className="!text-red-700">
+                            Reset
+                        </Button>
+                        <Button onClick={submitFilter} color="primary" variant="contained">
+                            Filter
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
 
         </div>
     );

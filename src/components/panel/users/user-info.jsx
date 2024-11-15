@@ -14,7 +14,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import RequiredTextField from "../../../shared/RequiredTextField";
 
-const UserInfo = ({open, handleClose, currentDataId}) => {
+const UserInfo = ({open, handleClose, currentDataId, showMessage}) => {
     const [formValues, setFormValues] = useState({
         username: '',
         password: '',
@@ -27,7 +27,7 @@ const UserInfo = ({open, handleClose, currentDataId}) => {
             const response = await getUserById({id});
             setFormValues(response);
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            showMessage("Error Fetching Data!", 'error');
         }
     };
 

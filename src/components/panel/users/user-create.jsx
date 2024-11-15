@@ -47,14 +47,18 @@ const UserCreate = ({open, handleClose, showMessage}) => {
             formValues.password.trim() !== '' &&
             formValues.fullName.trim() !== '' &&
             formValues.role !== 'NONE') {
-            await createUser({
-                    username: formValues.username,
-                    password: formValues.password,
-                    fullName: formValues.fullName,
-                    role: formValues.role
-                }
-            );
-            showMessage("Item created successfully!", 'success');
+            try {
+                await createUser({
+                        username: formValues.username,
+                        password: formValues.password,
+                        fullName: formValues.fullName,
+                        role: formValues.role
+                    }
+                );
+                showMessage("Item created successfully!", 'success');
+            } catch (error) {
+                showMessage("Create Failed!", 'error');
+            }
             resetFormValues();
             setIsSubmitted(false);
             handleClose();
