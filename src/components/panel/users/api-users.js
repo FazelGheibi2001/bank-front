@@ -1,7 +1,13 @@
 import api from '../../../config/axios-interceptor';
 
-export const getAllUsers = async ({page, pageSize, filter}) => {
-    const queryParams = new URLSearchParams({page: page - 1, size: pageSize, ...filter});
+export const getAllUsers = async ({page, pageSize, sort, filter}) => {
+    const queryParams = new URLSearchParams({
+        page: page - 1,
+        size: pageSize,
+        ...(sort ? { sort: `${sort.field},${sort.sort}` } : {}),
+        ...filter,
+    });
+
     return await api.get(
         `/api/v1/user/find-all?${queryParams}`,
     );

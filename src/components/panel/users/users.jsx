@@ -45,10 +45,14 @@ const Users = () => {
         fullName: null,
         role: null
     });
+    const [sortModel, setSortModel] = useState({
+        field: '',
+        sort: '',
+    });
 
     useEffect(() => {
         fetchUsers(paginationModel.page, paginationModel.pageSize, searchFormFilter);
-    }, [paginationModel.page, paginationModel.pageSize, createPopupOpen, deleteModalOpen, updatePopupOpen]);
+    }, [paginationModel.page, paginationModel.pageSize, createPopupOpen, deleteModalOpen, updatePopupOpen, sortModel]);
 
     const fetchUsers = async (page, pageSize, filters) => {
         setLoading(true);
@@ -57,9 +61,10 @@ const Users = () => {
                 {
                     page: page,
                     pageSize: pageSize,
+                    sort: sortModel !== undefined ? sortModel : null,
                     filter: Object.fromEntries(
                         Object.entries(filters).filter(([key, value]) => value !== null)
-                    )
+                    ),
                 }
             );
             setData(response?.content);
@@ -168,6 +173,10 @@ const Users = () => {
     const handleFilterClose = async () => {
         setFilterPopupOpen(false);
     }
+
+    const handleSortModelChange = (newSortModel) => {
+        setSortModel(newSortModel[0]);
+    };
 
     const resetFilterFormValues = async () => {
         setFilterPopupOpen(false);
@@ -332,6 +341,7 @@ const Users = () => {
                     pagination
                     // checkboxSelection
                     disableSelectionOnClick
+                    onSortModelChange={handleSortModelChange}
                     sx={{borderTop: 1, borderColor: '#dcdcdc', borderBottom: 0}}
                     hideFooter
                 />
