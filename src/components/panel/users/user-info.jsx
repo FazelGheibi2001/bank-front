@@ -42,7 +42,7 @@ const UserInfo = ({open, handleClose, currentDataId, showMessage}) => {
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <span>Show User</span>
+                        <span>Show</span>
                         <Button onClick={() => handleClose()} className="!text-red-600" style={{minWidth: 0, padding: '0 8px'}}>
                             <CloseIcon/>
                         </Button>

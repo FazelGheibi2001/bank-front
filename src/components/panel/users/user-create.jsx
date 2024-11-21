@@ -70,7 +70,7 @@ const UserCreate = ({open, handleClose, showMessage}) => {
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <span>Create User</span>
+                        <span>Create</span>
                         <Button onClick={() => {
                             handleClose();
                             resetFormValues();

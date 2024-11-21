@@ -341,6 +341,7 @@ const Users = () => {
                     pagination
                     // checkboxSelection
                     disableSelectionOnClick
+                    onRowDoubleClick={(entity) => handleInfo(entity.id)}
                     onSortModelChange={handleSortModelChange}
                     sx={{borderTop: 1, borderColor: '#dcdcdc', borderBottom: 0}}
                     hideFooter
@@ -386,7 +387,7 @@ const Users = () => {
                 <Dialog open={filterPopupOpen} onClose={handleFilterClose} maxWidth="sm" fullWidth>
                     <DialogTitle>
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                            <span>Filter User</span>
+                            <span>Filter</span>
                             <Button onClick={() => handleFilterClose()} className="!text-red-600"
                                     style={{minWidth: 0, padding: '0 8px'}}>
                                 <CloseIcon/>

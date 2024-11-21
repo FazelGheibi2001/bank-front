@@ -5,14 +5,18 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import MenuIcon from "@mui/icons-material/Menu";
 import React, {useEffect, useState} from "react";
 import {currentUserApi} from "../components/panel/api-panel";
+import {useLocation} from "react-router-dom";
 
 const Header = ({toggleDrawer, setLoading, handleMenuClick}) => {
+    const location = useLocation();
     const [currentUser, setCurrentUser] = useState(null);
     const [unreadNotifications, setUnreadNotifications] = useState(5);
+    const [marketTime, setMarketTime] = useState('');
 
     useEffect(() => {
         getCurrentUser();
-    }, []);
+        getCurrentTime()
+    }, [location.pathname]);
 
     const getCurrentUser = async () => {
         setLoading(true);
@@ -20,6 +24,21 @@ const Header = ({toggleDrawer, setLoading, handleMenuClick}) => {
         setCurrentUser(response);
         setLoading(false);
     };
+
+    const getCurrentTime = async () => {
+        const date = new Date();
+        const marketTimeFormatted = date.toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true,
+            timeZone: "Europe/Athens",
+        });
+        setMarketTime(marketTimeFormatted);
+    }
 
     return (
         <AppBar position="fixed">
@@ -50,7 +69,7 @@ const Header = ({toggleDrawer, setLoading, handleMenuClick}) => {
                 </Box>
 
                 <Typography className="text-white" variant="h6">
-                    Market Time: 20:12:30
+                    {marketTime}
                 </Typography>
 
                 <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)}>

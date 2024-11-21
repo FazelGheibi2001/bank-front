@@ -69,7 +69,7 @@ const UserUpdate = ({open, handleClose, currentDataId, showMessage}) => {
                     }
                 );
                 showMessage("Item updated successfully!", 'success');
-                resetFormValues();
+                await resetFormValues();
             } catch (error) {
                 showMessage("Update Failed!", 'error');
             }
@@ -83,7 +83,7 @@ const UserUpdate = ({open, handleClose, currentDataId, showMessage}) => {
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <span>Update User</span>
+                        <span>Update</span>
                         <Button onClick={() => {
                             handleClose();
                             resetFormValues();
