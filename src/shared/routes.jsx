@@ -1,8 +1,9 @@
 import {Route, Routes} from "react-router-dom";
 import Login from "../components/login/login";
 import ProtectedRoute from "../config/protected-route";
-import Panel from "../components/panel/panel";
-import Users from "../components/panel/users/users";
+import Dashboard from "../components/dashboard/dashboard";
+import UserBalance from "../components/dashboard/balance/user-balance";
+import Transactions from "../components/dashboard/transactions/transactions";
 
 const ModuleRoutes = () => {
     return (
@@ -20,14 +21,15 @@ const ModuleRoutes = () => {
                 }
             />
             <Route
-                path="/panel/*"
+                path="/dashboard/*"
                 element={
                     <ProtectedRoute>
-                        <Panel/>
+                        <Dashboard/>
                     </ProtectedRoute>
                 }
             >
-                <Route path="users" element={<Users/>}/>
+                <Route path="user-balance" element={<UserBalance/>}/>
+                <Route path="transactions" element={<Transactions/>}/>
             </Route>
         </Routes>
     )
